@@ -6,8 +6,8 @@
     <strong>A patient care follow up platform for Syrian Hemophilia Society</strong>
   </p>
   <p>
-    <a href="https://goreportcard.com/report/github.com/syrianhemophiliasociety/log"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/syrianhemophiliasociety/logs"/></a>
-    <a href="https://github.com/syrianhemophiliasociety/logs/actions/workflows/rex-deploy.yml"><img alt="rex-deployment" src="https://github.com/syrianhemophiliasociety/logs/actions/workflows/rex-deploy.yml/badge.svg"/></a>
+    <a href="https://goreportcard.com/report/github.com/syrianhemophiliasociety/logs-server"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/syrianhemophiliasociety/logs-server"/></a>
+    <a href="https://github.com/syrianhemophiliasociety/logs-server/actions/workflows/rex-deploy.yml"><img alt="rex-deployment" src="https://github.com/syrianhemophiliasociety/logs-server/actions/workflows/rex-deploy.yml/badge.svg"/></a>
   </p>
 </div>
 
