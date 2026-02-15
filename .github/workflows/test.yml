@@ -11,6 +11,10 @@ on:
       - master
 
 env:
+  PORT: "3000"
+  GO_ENV: "test"
+  JWT_SECRET: "pashinahui"
+  BLOBS_DIR: "."
   DB_NAME: "shsdb"
   DB_HOST: "localhost:3306"
   DB_USERNAME: "root"

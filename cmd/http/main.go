@@ -114,6 +114,11 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /patient/{id}/visits", authMiddleware.AuthApi(patientApi.HandleListPatientVisits))
 	v1ApisHandler.HandleFunc("POST /patient/visit/{visit_id}/medicine/{med_id}", authMiddleware.AuthApi(patientApi.HandleUsePrescribedMedicineForVisit))
 
+	v1ApisHandler.HandleFunc("GET /status", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message": "yeeehaww"}`))
+	})
+
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", contenttype.Json(v1ApisHandler)))
 
