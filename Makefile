@@ -5,7 +5,7 @@ MIGRATOR_BINARY_NAME=shs-migrator
 
 all: build-server build-migrator
 
-build: init generate build-server build-migrator
+build: init build-server build-migrator
 
 build-server: init
 	go build -ldflags="-w -s" -o ${SERVER_BINARY_NAME} ./cmd/http/main.go
@@ -31,6 +31,16 @@ dev:
 shs-server:
 	./${MIGRATOR_BINARY_NAME} &&\
 	./${SERVER_BINARY_NAME}
+
+shs-server-local: build
+	./${MIGRATOR_BINARY_NAME} &&\
+	./${SERVER_BINARY_NAME}
+
+test: build
+	@npx playwright test --reporter=list
+
+test-ci: build
+	@npx playwright test --reporter=dot
 
 clean:
 	go clean
