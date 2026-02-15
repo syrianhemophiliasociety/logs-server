@@ -21,6 +21,10 @@ export default defineConfig({
 
   webServer: {
     env: {
+      PORT: "3000",
+      GO_ENV: "test",
+      JWT_SECRET: "pashinahui",
+      BLOBS_DIR: ".",
       DB_NAME: "shsdb",
       DB_HOST: "localhost:3306",
       DB_USERNAME: "root",
@@ -30,7 +34,7 @@ export default defineConfig({
       SUPERADMIN_USERNAME: "b",
       SUPERADMIN_PASSWORD: "kurwamatch",
     },
-    command: "make shs-server-local",
+    command: "make shs-server",
     url: "http://127.0.0.1:3000/v1/status",
     reuseExistingServer: true,
   },

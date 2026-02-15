@@ -32,11 +32,7 @@ shs-server:
 	./${MIGRATOR_BINARY_NAME} &&\
 	./${SERVER_BINARY_NAME}
 
-shs-server-local: build
-	./${MIGRATOR_BINARY_NAME} &&\
-	./${SERVER_BINARY_NAME}
-
-test: build
+test:
 	@npx playwright test --reporter=list
 
 test-ci: build
