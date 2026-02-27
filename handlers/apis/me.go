@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"shs/actions"
+	"shs/log"
 )
 
 type meApi struct {
@@ -23,6 +24,12 @@ func (u *meApi) HandleAuthCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = u.usecases.CheckSessionToken(r.Header.Get("Authorization"))
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
+
 	_ = json.NewEncoder(w).Encode(actions.Account{
 		Id:          ctx.Account.Id,
 		DisplayName: ctx.Account.DisplayName,
@@ -35,7 +42,12 @@ func (u *meApi) HandleAuthCheck(w http.ResponseWriter, r *http.Request) {
 func (m *meApi) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	sessionToken, ok := r.Header["Authorization"]
 	if !ok {
+		handleErrorResponse(w, actions.ErrInvalidSessionToken{})
 		return
 	}
-	_ = m.usecases.InvalidateAuthenticatedAccount(sessionToken[0])
+	err := m.usecases.InvalidateAuthenticatedAccount(sessionToken[0])
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
 }

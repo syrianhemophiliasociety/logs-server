@@ -154,8 +154,6 @@ func (e *accountApi) HandleUpdateAccount(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Debugln(id)
-
 	var params actions.UpdateAccountParams
 	err = json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {

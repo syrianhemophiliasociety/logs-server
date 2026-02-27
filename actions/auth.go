@@ -21,6 +21,7 @@ func (a *Actions) AuthenticateAccount(sessionToken string) (models.Account, erro
 		return models.Account{}, ErrInvalidSessionToken{}
 	}
 
+	// TODO: add some state for the session token to indicate logged out accounts
 	account, err := a.cache.GetAuthenticatedAccount(sessionToken)
 	if err != nil {
 		account, err = a.app.GetAccountByUsername(token.Payload.Username)
@@ -37,13 +38,23 @@ func (a *Actions) AuthenticateAccount(sessionToken string) (models.Account, erro
 	return account, nil
 }
 
+func (a *Actions) CheckSessionToken(sessionToken string) error {
+	_, err := a.cache.GetAuthenticatedAccount(sessionToken)
+	if err != nil {
+		return ErrInvalidSessionToken{}
+	}
+
+	return nil
+}
+
 type TokenPayload struct {
-	Name     string `json:"name"`
-	Username string `json:"username"`
+	Name      string    `json:"name"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (t TokenPayload) Valid() bool {
-	return t.Name != "" && t.Username != ""
+	return t.Name != "" && t.Username != "" && !t.CreatedAt.IsZero()
 }
 
 type LoginWithUsernameParams struct {
@@ -67,8 +78,9 @@ func (a *Actions) LoginWithUsername(params LoginWithUsernameParams) (LoginWithUs
 	}
 
 	sessionToken, err := a.jwt.Sign(TokenPayload{
-		Name:     account.DisplayName,
-		Username: account.Username,
+		Name:      account.DisplayName,
+		Username:  account.Username,
+		CreatedAt: time.Now().UTC(),
 	}, JwtSessionToken, time.Hour*24*sessionTokenTtlDays)
 	if err != nil {
 		return LoginWithUsernamePayload{}, err

@@ -283,3 +283,11 @@ test.describe("Create Account", () => {
     expect(resp).toBeOK();
   });
 });
+
+test.describe("Get Account", () => {});
+
+test.describe("List Accounts", () => {});
+
+test.describe("Update Account", () => {});
+
+test.describe("Delete Account", () => {});
