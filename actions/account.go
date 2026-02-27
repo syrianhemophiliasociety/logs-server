@@ -45,6 +45,20 @@ type createAccountParams struct {
 	Permissions models.AccountPermissions `json:"permissions"`
 }
 
+func (a createAccountParams) Validate() error {
+	if a.Username == "" {
+		return ErrInvalidAccountUsername{}
+	}
+	if a.Password == "" {
+		return ErrInvalidAccountPassword{}
+	}
+	if a.DisplayName == "" {
+		return ErrInvalidAccountDisplayName{}
+	}
+
+	return nil
+}
+
 type CreateSecritaryAccountParams struct {
 	ActionContext
 	NewAccount createAccountParams `json:"new_account"`
@@ -57,6 +71,9 @@ type CreateSecritaryAccountPayload struct {
 func (a *Actions) CreateSecritaryAccount(params CreateSecritaryAccountParams) (CreateSecritaryAccountPayload, error) {
 	if !params.Account.HasPermission(models.AccountPermissionWriteAccounts) {
 		return CreateSecritaryAccountPayload{}, ErrPermissionDenied{}
+	}
+	if err := params.NewAccount.Validate(); err != nil {
+		return CreateSecritaryAccountPayload{}, err
 	}
 
 	newAccount, err := a.app.CreateAccount(models.Account{
@@ -84,6 +101,9 @@ type CreateAdminAccountPayload struct {
 func (a *Actions) CreateAdminAccount(params CreateAdminAccountParams) (CreateAdminAccountPayload, error) {
 	if !params.Account.HasPermission(models.AccountPermissionWriteAccounts) {
 		return CreateAdminAccountPayload{}, ErrPermissionDenied{}
+	}
+	if err := params.NewAccount.Validate(); err != nil {
+		return CreateAdminAccountPayload{}, err
 	}
 
 	newAccount, err := a.app.CreateAccount(models.Account{

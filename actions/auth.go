@@ -58,7 +58,7 @@ type LoginWithUsernamePayload struct {
 func (a *Actions) LoginWithUsername(params LoginWithUsernameParams) (LoginWithUsernamePayload, error) {
 	account, err := a.app.GetAccountByUsername(params.Username)
 	if err != nil {
-		return LoginWithUsernamePayload{}, err
+		return LoginWithUsernamePayload{}, ErrInvalidLoginCredientials{}
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(params.Password))

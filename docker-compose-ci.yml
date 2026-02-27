@@ -8,7 +8,7 @@ services:
     stdin_open: true
     environment:
       MARIADB_ROOT_PASSWORD: "previetcomrade"
-      MARIADB_DATABASE: "shsdb"
+      MARIADB_DATABASE: "shsdb_test"
 
   shs-cache:
     container_name: "shs-cache"

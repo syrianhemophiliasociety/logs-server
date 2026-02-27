@@ -48,8 +48,13 @@ func Migrate() error {
 		}
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(config.Env().SuperAdmin.Password), bcrypt.DefaultCost)
+	_ = (&Repository{dbConn}).CreateSuperAdmin()
 
+	return nil
+}
+
+func (r *Repository) CreateSuperAdmin() error {
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(config.Env().SuperAdmin.Password), bcrypt.DefaultCost)
 	superMechman := models.Account{
 		DisplayName: "Super Admin!",
 		Username:    config.Env().SuperAdmin.Username,
@@ -64,7 +69,28 @@ func Migrate() error {
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
-	_ = dbConn.Create(&superMechman)
+
+	return r.client.Create(&superMechman).Error
+}
+
+func (r *Repository) DeleteAll() error {
+	err := r.client.Exec("SET FOREIGN_KEY_CHECKS=0;").Error
+	if err != nil {
+		return err
+	}
+
+	for _, table := range migratableModels {
+		var err error
+		_, ok := table.(models.Account)
+		if ok {
+			err = r.client.Model(table).Where("username != ?", "b").Delete(nil).Error
+		} else {
+			err = r.client.Model(table).Where("true").Delete(nil).Error
+		}
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

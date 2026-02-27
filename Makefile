@@ -25,8 +25,15 @@ dev:
 		echo "air was not found, installing it..."; \
 		go install github.com/cosmtrek/air@v1.51.0; \
 	fi
+	export `cat .env | xargs` && air
 
-	air
+dev-test:
+	air -v > /dev/null
+	@if [ $$? != 0 ]; then \
+		echo "air was not found, installing it..."; \
+		go install github.com/cosmtrek/air@v1.51.0; \
+	fi
+	export `cat .env.ci | xargs` && air
 
 shs-server:
 	./${MIGRATOR_BINARY_NAME} &&\

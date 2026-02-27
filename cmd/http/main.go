@@ -19,36 +19,23 @@ import (
 	"github.com/tdewolff/minify/v2/json"
 )
 
-var (
-	minifyer       *minify.M
-	usecases       *actions.Actions
-	authMiddleware *auth.Middleware
-)
-
-func init() {
-	mariadbRepo, err := mariadb.New()
+func main() {
+	repo, err := mariadb.New()
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	cache := redis.New()
-
-	app := app.New(mariadbRepo, cache)
+	app := app.New(repo, cache)
 	jwtUtil := jwt.New[actions.TokenPayload]()
-
-	usecases = actions.New(
+	usecases := actions.New(
 		app,
 		cache,
 		jwtUtil,
 	)
-
-	authMiddleware = auth.New(usecases)
-
-	minifyer = minify.New()
+	authMiddleware := auth.New(usecases)
+	minifyer := minify.New()
 	minifyer.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
-}
 
-func main() {
 	emailLoginApi := apis.NewUsernameLoginApi(usecases)
 	meApi := apis.NewMeApi(usecases)
 	accountApi := apis.NewAccountApi(usecases)
@@ -114,10 +101,38 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /patient/{id}/visits", authMiddleware.AuthApi(patientApi.HandleListPatientVisits))
 	v1ApisHandler.HandleFunc("POST /patient/visit/{visit_id}/medicine/{med_id}", authMiddleware.AuthApi(patientApi.HandleUsePrescribedMedicineForVisit))
 
-	v1ApisHandler.HandleFunc("GET /status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"message": "yeeehaww"}`))
-	})
+	if config.Env().GoEnv == config.GoEnvTest || config.Env().GoEnv == config.GoEnvDev {
+		v1ApisHandler.HandleFunc("GET /status", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"message": "yeeehaww"}`))
+		})
+
+		v1ApisHandler.HandleFunc("POST /tests/reset/db", func(w http.ResponseWriter, r *http.Request) {
+			err := repo.DeleteAll()
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte(`{"message": "resetting DB failed"}`))
+				return
+			}
+
+			_ = repo.CreateSuperAdmin()
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"message": "yeeehaww"}`))
+		})
+
+		v1ApisHandler.HandleFunc("POST /tests/reset/cache", func(w http.ResponseWriter, r *http.Request) {
+			err := cache.FlushAll()
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte(`{"message": "flushing cache failed"}`))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"message": "yeeehaww"}`))
+		})
+	}
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", contenttype.Json(v1ApisHandler)))

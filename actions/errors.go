@@ -20,6 +20,60 @@ func (e ErrInvalidLoginCredientials) ExposeToClients() bool {
 	return true
 }
 
+type ErrInvalidAccountUsername struct{}
+
+func (e ErrInvalidAccountUsername) Error() string {
+	return "invalid-account-username"
+}
+
+func (e ErrInvalidAccountUsername) ClientStatusCode() int {
+	return http.StatusBadRequest
+}
+
+func (e ErrInvalidAccountUsername) ExtraData() map[string]any {
+	return nil
+}
+
+func (e ErrInvalidAccountUsername) ExposeToClients() bool {
+	return true
+}
+
+type ErrInvalidAccountPassword struct{}
+
+func (e ErrInvalidAccountPassword) Error() string {
+	return "invalid-account-password"
+}
+
+func (e ErrInvalidAccountPassword) ClientStatusCode() int {
+	return http.StatusBadRequest
+}
+
+func (e ErrInvalidAccountPassword) ExtraData() map[string]any {
+	return nil
+}
+
+func (e ErrInvalidAccountPassword) ExposeToClients() bool {
+	return true
+}
+
+type ErrInvalidAccountDisplayName struct{}
+
+func (e ErrInvalidAccountDisplayName) Error() string {
+	return "invalid-account-display-name"
+}
+
+func (e ErrInvalidAccountDisplayName) ClientStatusCode() int {
+	return http.StatusBadRequest
+}
+
+func (e ErrInvalidAccountDisplayName) ExtraData() map[string]any {
+	return nil
+}
+
+func (e ErrInvalidAccountDisplayName) ExposeToClients() bool {
+	return true
+}
+
 type ErrInvalidSessionToken struct{}
 
 func (e ErrInvalidSessionToken) Error() string {

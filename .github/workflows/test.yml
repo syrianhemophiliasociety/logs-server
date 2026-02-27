@@ -23,7 +23,7 @@ env:
   CACHE_PASSWORD: "previetcomrade"
   SUPERADMIN_USERNAME: "b"
   SUPERADMIN_PASSWORD: "kurwamatch"
-
+  CI: true
 
 jobs:
   test:

@@ -104,3 +104,7 @@ func (c *Cache) InvalidateAuthenticatedAccountById(accountId uint) error {
 
 	return nil
 }
+
+func (c *Cache) FlushAll() error {
+	return c.client.FlushAll(context.Background()).Err()
+}

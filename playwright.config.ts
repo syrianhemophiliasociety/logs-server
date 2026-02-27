@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 1,
   reporter: "dot",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://127.0.0.1:3000",
     trace: "on-first-retry",
   },
 
@@ -25,7 +25,7 @@ export default defineConfig({
       GO_ENV: "test",
       JWT_SECRET: "pashinahui",
       BLOBS_DIR: ".",
-      DB_NAME: "shsdb",
+      DB_NAME: "shsdb_test",
       DB_HOST: "localhost:3306",
       DB_USERNAME: "root",
       DB_PASSWORD: "previetcomrade",
@@ -35,7 +35,7 @@ export default defineConfig({
       SUPERADMIN_PASSWORD: "kurwamatch",
     },
     command: "make shs-server",
+    reuseExistingServer: true, //!process.env.CI,
     url: "http://127.0.0.1:3000/v1/status",
-    reuseExistingServer: true,
   },
 });
