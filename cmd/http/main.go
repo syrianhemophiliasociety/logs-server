@@ -97,9 +97,10 @@ func main() {
 	v1ApisHandler.HandleFunc("POST /patients/diagnosis", authMiddleware.AuthApi(patientApi.HandleCreatePatientDiagnosisResult))
 	v1ApisHandler.HandleFunc("POST /patients/{id}/joints-evaluation", authMiddleware.AuthApi(patientApi.HandleCreatePatientJointsEvaluation))
 	v1ApisHandler.HandleFunc("GET /patients/{id}/joints-evaluations", authMiddleware.AuthApi(patientApi.HandleListPatientJointsEvaluations))
-	v1ApisHandler.HandleFunc("GET /patients/last-visit", authMiddleware.AuthApi(patientApi.HandleGetPatientLastVisit))
 	v1ApisHandler.HandleFunc("GET /patients/{id}/visits", authMiddleware.AuthApi(patientApi.HandleListPatientVisits))
 	v1ApisHandler.HandleFunc("POST /patients/visit/{visit_id}/medicine/{med_id}", authMiddleware.AuthApi(patientApi.HandleUsePrescribedMedicineForVisit))
+
+	v1ApisHandler.HandleFunc("GET /me/patient/last-visit", authMiddleware.AuthApi(patientApi.HandleGetPatientLastVisit))
 
 	if config.Env().GoEnv == config.GoEnvTest || config.Env().GoEnv == config.GoEnvDev {
 		v1ApisHandler.HandleFunc("GET /status", func(w http.ResponseWriter, r *http.Request) {

@@ -12,6 +12,7 @@ exclude_dir = [
   ".serve",
   "node_modules",
   "tests",
+  "test-results",
 ]
 exclude_file = []
 exclude_regex = [".*_templ.go"]

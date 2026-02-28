@@ -371,7 +371,64 @@ test.describe("Get Account", () => {
 });
 
 test.describe("List Accounts", () => {
-  test("getting account with invalid token fails", async ({ request }) => {
+  test("listing accounts with invalid token fails", async ({ request }) => {
+    const token = "abc123";
+    const resp = await request.get("/v1/accounts", {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(401);
+  });
+
+  test("listing accounts with empty token fails", async ({ request }) => {
+    const token = "";
+    const resp = await request.get("/v1/accounts", {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(401);
+  });
+
+  test("listing account with insufficient permissions fails", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.ziemowit);
+
+    const resp = await request.get("/v1/accounts", {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(403);
+  });
+
+  test("listing accounts with sufficient permissions returns a list of admins and secritaries", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.rex);
+    const allowedTypes = ["admin", "secritary"];
+    // using the existing list from ./accounts.json
+    const resp = await request.get("/v1/accounts", {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(200);
+    const respBody = await resp.json();
+    for (const account of respBody.data) {
+      expect(allowedTypes.includes(account.type)).toBe(true);
+    }
+  });
+});
+
+test.describe("Update Account", () => {
+  test("updating an account with invalid token fails", async ({ request }) => {
     const token = "abc123";
     const accountId = await createAccountAsSuperAdmin(request, {
       username: "foo" + randomUUID(),
@@ -380,16 +437,21 @@ test.describe("List Accounts", () => {
       type: "secritary",
     } as Account);
 
-    const resp = await request.get(`/v1/accounts/${accountId}`, {
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
       headers: {
         Authorization: token,
       },
+      data: JSON.stringify({
+        new_account: {
+          display_name: "Foo",
+        },
+      }),
     });
 
     expect(resp.status()).toBe(401);
   });
 
-  test("getting account with empty token fails", async ({ request }) => {
+  test("updating an account with empty token fails", async ({ request }) => {
     const token = "";
     const accountId = await createAccountAsSuperAdmin(request, {
       username: "foo" + randomUUID(),
@@ -398,16 +460,21 @@ test.describe("List Accounts", () => {
       type: "secritary",
     } as Account);
 
-    const resp = await request.get(`/v1/accounts/${accountId}`, {
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
       headers: {
         Authorization: token,
       },
+      data: JSON.stringify({
+        new_account: {
+          display_name: "Foo",
+        },
+      }),
     });
 
     expect(resp.status()).toBe(401);
   });
 
-  test("getting account with insufficient permissions fails", async ({
+  test("updating an account with insufficient permissions fails", async ({
     request,
   }) => {
     const token = await loginAccount(request, accounts.ziemowit);
@@ -418,16 +485,21 @@ test.describe("List Accounts", () => {
       type: "secritary",
     } as Account);
 
-    const resp = await request.get(`/v1/accounts/${accountId}`, {
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
       headers: {
         Authorization: token,
       },
+      data: JSON.stringify({
+        new_account: {
+          display_name: "Foo",
+        },
+      }),
     });
 
     expect(resp.status()).toBe(403);
   });
 
-  test("getting account with sufficient permissions works", async ({
+  test("updating an account's username with sufficient permissions works", async ({
     request,
   }) => {
     const token = await loginAccount(request, accounts.rex);
@@ -438,7 +510,166 @@ test.describe("List Accounts", () => {
       type: "secritary",
     } as Account);
 
-    const resp = await request.get(`/v1/accounts/${accountId}`, {
+    const newAccountUsername = "foofi" + randomUUID();
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+      data: JSON.stringify({
+        new_account: {
+          username: newAccountUsername,
+        },
+      }),
+    });
+    expect(resp.status()).toBe(200);
+
+    const resp2 = await request.get(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    expect(resp2).toBeOK();
+    const respBody = await resp2.json();
+
+    expect(respBody.data.username).toBe(newAccountUsername);
+  });
+
+  test("updating an account's password with sufficient permissions works", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.rex);
+    const accountUsername = "foo" + randomUUID();
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: accountUsername,
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const newAccountPassword = "bibi";
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+      data: JSON.stringify({
+        new_account: {
+          password: newAccountPassword,
+        },
+      }),
+    });
+    expect(resp.status()).toBe(200);
+
+    await loginAccount(request, {
+      username: accountUsername,
+      password: newAccountPassword,
+    });
+  });
+
+  test("updating an account's display name with sufficient permissions works", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.rex);
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: "foo" + randomUUID(),
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const newAccountDisplayName = "Foo";
+    const resp = await request.put(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+      data: JSON.stringify({
+        new_account: {
+          display_name: newAccountDisplayName,
+        },
+      }),
+    });
+    expect(resp.status()).toBe(200);
+
+    const resp2 = await request.get(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    expect(resp2).toBeOK();
+    const respBody = await resp2.json();
+
+    expect(respBody.data.display_name).toBe(newAccountDisplayName);
+  });
+});
+
+test.describe("Delete Account", () => {
+  test("deleting an account with invalid token fails", async ({ request }) => {
+    const token = "abc123";
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: "foo" + randomUUID(),
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const resp = await request.delete(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(401);
+  });
+
+  test("deleting an account with empty token fails", async ({ request }) => {
+    const token = "";
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: "foo" + randomUUID(),
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const resp = await request.delete(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(401);
+  });
+
+  test("deleting an account with insufficient permissions fails", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.ziemowit);
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: "foo" + randomUUID(),
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const resp = await request.delete(`/v1/accounts/${accountId}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    expect(resp.status()).toBe(403);
+  });
+
+  test("deleting an account with sufficient permissions works", async ({
+    request,
+  }) => {
+    const token = await loginAccount(request, accounts.rex);
+    const accountId = await createAccountAsSuperAdmin(request, {
+      username: "foo" + randomUUID(),
+      password: "bar",
+      display_name: "Baz",
+      type: "secritary",
+    } as Account);
+
+    const resp = await request.delete(`/v1/accounts/${accountId}`, {
       headers: {
         Authorization: token,
       },
@@ -447,7 +678,3 @@ test.describe("List Accounts", () => {
     expect(resp.status()).toBe(200);
   });
 });
-
-test.describe("Update Account", () => {});
-
-test.describe("Delete Account", () => {});
