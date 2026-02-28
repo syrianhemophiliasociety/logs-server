@@ -33,9 +33,9 @@ export async function loginAccount(
 
 export async function createAccountAsSuperAdmin(
   request: APIRequestContext,
-  account: AccountKey,
-): Promise<void> {
-  if (!["secritary", "admin"].includes(accounts[account].type)) {
+  account: Account,
+): Promise<number> {
+  if (!["secritary", "admin"].includes(account.type)) {
     return Promise.reject(
       "invalid account type, can only create admin and secritary",
     );
@@ -43,15 +43,17 @@ export async function createAccountAsSuperAdmin(
 
   const adminToken = await loginAccount(request, accounts.b);
 
-  const resp = await request.post(`/v1/account/${accounts[account].type}`, {
+  const resp = await request.post(`/v1/accounts/${account.type}`, {
     data: JSON.stringify({
-      new_account: accounts[account],
+      new_account: account,
     }),
     headers: {
       Authorization: adminToken,
     },
   });
   expect(resp).toBeOK();
+
+  return (await resp.json()).id;
 }
 
 export async function resetDB(request: APIRequestContext) {
@@ -71,7 +73,7 @@ export async function seedAccounts(request: APIRequestContext): Promise<void> {
       continue;
     }
 
-    await createAccountAsSuperAdmin(request, account as AccountKey);
+    await createAccountAsSuperAdmin(request, accounts[account]);
   }
 }
 

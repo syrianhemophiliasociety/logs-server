@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"shs/actions"
 	"shs/app/models"
-	"shs/log"
 )
 
 // Context keys
@@ -65,7 +64,6 @@ func (a *Middleware) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 func (a *Middleware) authenticate(r *http.Request) (models.Account, error) {
 	sessionToken, ok := r.Header["Authorization"]
 	if !ok {
-		log.Debugln("mw.authenticate: invalid token")
 		return models.Account{}, actions.ErrInvalidSessionToken{}
 	}
 

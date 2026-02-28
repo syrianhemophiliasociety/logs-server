@@ -117,7 +117,7 @@ func (e ErrPermissionDenied) Error() string {
 }
 
 func (e ErrPermissionDenied) ClientStatusCode() int {
-	return http.StatusUnauthorized
+	return http.StatusForbidden
 }
 
 func (e ErrPermissionDenied) ExtraData() map[string]any {

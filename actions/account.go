@@ -129,7 +129,7 @@ type GetAccountPayload struct {
 }
 
 func (a *Actions) GetAccount(params GetAccountParams) (GetAccountPayload, error) {
-	if !params.Account.HasPermission(models.AccountPermissionWriteAccounts) {
+	if !params.Account.HasPermission(models.AccountPermissionReadAccounts) {
 		return GetAccountPayload{}, ErrPermissionDenied{}
 	}
 
