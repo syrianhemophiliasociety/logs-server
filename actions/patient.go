@@ -537,7 +537,7 @@ func (a *Actions) ListLastPatients(params ListLastPatientsParams) (ListLastPatie
 		return ListLastPatientsPayload{}, ErrPermissionDenied{}
 	}
 
-	patients, err := a.app.ListLastPatients(50)
+	patients, err := a.app.ListLastPatients(200)
 	if err != nil {
 		return ListLastPatientsPayload{}, err
 	}

@@ -1,11 +1,14 @@
 package apis
 
 import (
+	"bufio"
 	"encoding/json"
+	"io"
 	"net/http"
 	"shs/actions"
 	"shs/log"
 	"strconv"
+	"strings"
 )
 
 type patientApi struct {
@@ -342,6 +345,67 @@ func (e *patientApi) HandleListPatientJointsEvaluations(w http.ResponseWriter, r
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
+func validateFileType(r io.ReadSeeker, wantedTypes ...string) error {
+	reader := bufio.NewReader(r)
+
+	bytes, err := reader.Peek(256)
+	if err != nil && err != io.EOF {
+		log.Errorln("1")
+		return err
+	}
+	r.Seek(0, 0)
+
+	fileType := http.DetectContentType(bytes)
+	for _, wantedType := range wantedTypes {
+		if strings.Contains(fileType, wantedType) {
+			return nil
+		}
+	}
+
+	if len(wantedTypes) == 1 {
+		return ErrInvalidFileType{
+			Want: wantedTypes[0],
+			Got:  fileType,
+		}
+	}
+
+	return ErrInvalidFileType{
+		Want: "One of: " + strings.Join(wantedTypes, ","),
+		Got:  fileType,
+	}
+}
+
+func (e *patientApi) HandleImportPatientsFromCsv(w http.ResponseWriter, r *http.Request) {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
+
+	r.ParseMultipartForm(32 << 20) // 32 MB
+
+	file, _, err := r.FormFile("patient_records")
+	if err != nil {
+		log.Warningf("upload error: %v", err)
+		handleErrorResponse(w, err)
+		return
+	}
+	defer file.Close()
+
+	if err := validateFileType(file, "text/plain", "application/vnd.ms-excel"); err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
+
+	payload, err := e.usecases.ImportPatientsFromCsv(actions.ImportPatientsFromCsvParams{
+		ActionContext: ctx,
+		CsvFile:       file,
+	})
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+// TODO: separate this from admin patient endpoints
 func (e *patientApi) HandleUsePrescribedMedicineForVisit(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {

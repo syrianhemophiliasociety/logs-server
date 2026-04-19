@@ -38,6 +38,8 @@ const (
 	BlootTestUnitMillionCellPerCubicMillimeter  BlootTestUnit = "10^6 cell/mm^3"
 
 	BlootTestUnitRatioOrIndex BlootTestUnit = "-"
+
+	BlootTestUnitNoUnit BlootTestUnit = "no_unit"
 )
 
 func BloodTestUnits() []BlootTestUnit {
@@ -65,6 +67,7 @@ func BloodTestUnits() []BlootTestUnit {
 		BlootTestUnitThousandCellPerCubicMillimeter,
 		BlootTestUnitMillionCellPerCubicMillimeter,
 		BlootTestUnitRatioOrIndex,
+		BlootTestUnitNoUnit,
 	}
 }
 

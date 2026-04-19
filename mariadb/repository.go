@@ -314,7 +314,9 @@ func (r *Repository) ListAllBloodTests() ([]models.BloodTest, error) {
 }
 
 func (r *Repository) CreateBloodTestResult(btResult models.BloodTestResult) (models.BloodTestResult, error) {
-	btResult.CreatedAt = time.Now().UTC()
+	if btResult.CreatedAt.IsZero() {
+		btResult.CreatedAt = time.Now().UTC()
+	}
 	btResult.UpdatedAt = time.Now().UTC()
 
 	err := tryWrapDbError(
@@ -699,6 +701,7 @@ func (r *Repository) CreatePatient(patient models.Patient) (models.Patient, erro
 	patient.PublicId = fmt.Sprintf("%06d", lastPatientId.PublicId)
 	patient.CreatedAt = time.Now().UTC()
 	patient.UpdatedAt = time.Now().UTC()
+	patient.FillEmptyFieldsUsingPublicId()
 
 	if patient.NationalId == "" {
 		patient.NationalId = "please_change_" + patient.PublicId
@@ -1227,7 +1230,9 @@ func (r *Repository) ListAllDiagnoses() ([]models.Diagnosis, error) {
 }
 
 func (r *Repository) CreateDiagnosisResult(diagnosis models.DiagnosisResult) (models.DiagnosisResult, error) {
-	diagnosis.CreatedAt = time.Now().UTC()
+	if diagnosis.CreatedAt.IsZero() {
+		diagnosis.CreatedAt = time.Now().UTC()
+	}
 	diagnosis.UpdatedAt = time.Now().UTC()
 
 	err := tryWrapDbError(

@@ -90,6 +90,7 @@ func main() {
 	v1ApisHandler.HandleFunc(
 		"GET /patients/public-id/{public_id}/first-name/{first_name}/last-name/{last_name}/father-name/{father_name}/mother-name/{mother_name}/national-id/{national_id}/phone-number/{phone_number}",
 		authMiddleware.AuthApi(patientApi.HandleFindPatients))
+	v1ApisHandler.HandleFunc("POST /patients/import/csv", authMiddleware.AuthApi(patientApi.HandleImportPatientsFromCsv))
 
 	v1ApisHandler.HandleFunc("POST /patients/bloodtest", authMiddleware.AuthApi(patientApi.HandleCreatePatientBloodTestResult))
 	v1ApisHandler.HandleFunc("PUT /patients/{id}/bloodtest/{btr_id}/pending", authMiddleware.AuthApi(patientApi.HandleUpdatePendingBloodTestResult))
@@ -98,6 +99,8 @@ func main() {
 	v1ApisHandler.HandleFunc("POST /patients/{id}/joints-evaluation", authMiddleware.AuthApi(patientApi.HandleCreatePatientJointsEvaluation))
 	v1ApisHandler.HandleFunc("GET /patients/{id}/joints-evaluations", authMiddleware.AuthApi(patientApi.HandleListPatientJointsEvaluations))
 	v1ApisHandler.HandleFunc("GET /patients/{id}/visits", authMiddleware.AuthApi(patientApi.HandleListPatientVisits))
+
+	// TODO: separate this from admin patient endpoints
 	v1ApisHandler.HandleFunc("POST /patients/visit/{visit_id}/medicine/{med_id}", authMiddleware.AuthApi(patientApi.HandleUsePrescribedMedicineForVisit))
 
 	v1ApisHandler.HandleFunc("GET /me/patient/last-visit", authMiddleware.AuthApi(patientApi.HandleGetPatientLastVisit))

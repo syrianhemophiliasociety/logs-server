@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type PatientIndexFields struct {
 	PublicId     string
@@ -36,7 +39,7 @@ type Patient struct {
 	DateOfBirth         time.Time               `gorm:"not null"`
 	Residency           Address                 `gorm:"not null"`
 	ResidencyId         uint                    `gorm:"index;not null"`
-	Gender              bool                    `gorm:"not null"`
+	Gender              bool                    `gorm:"not null;index"`
 	PhoneNumber         string                  `gorm:"index;not null"`
 	FamilyHistoryExists bool                    `gorm:"not null"`
 	FirstVisitReason    PatientFirstVisitReason `gorm:"not null"`
@@ -52,6 +55,34 @@ type Patient struct {
 
 func (Patient) TableName() string {
 	return "patients"
+}
+
+func (p Patient) IndexId() string {
+	return fmt.Sprintf("%s#%s#%s#%s", p.FirstName, p.LastName, p.FatherName, p.MotherName)
+}
+
+// FillEmptyFieldsUsingPublicId sets some empty fields with the value please_change_{publicId}
+// it includes publicId since some fields are indexes.
+// MUST ONLY BE USED WHEN USING THE IMPORT FUNCTIONALITY
+func (p *Patient) FillEmptyFieldsUsingPublicId() {
+	if p.NationalId == "" {
+		p.NationalId = "please_change_" + p.PublicId
+	}
+	if p.PhoneNumber == "" {
+		p.PhoneNumber = "please_change_" + p.PublicId
+	}
+	if p.PlaceOfBirth.Governorate == "" {
+		p.PlaceOfBirth.Governorate = "please_change_" + p.PublicId
+	}
+	if p.PlaceOfBirth.Suburb == "" {
+		p.PlaceOfBirth.Suburb = "please_change_" + p.PublicId
+	}
+	if p.Residency.Governorate == "" {
+		p.Residency.Governorate = "please_change_" + p.PublicId
+	}
+	if p.Residency.Suburb == "" {
+		p.Residency.Suburb = "please_change_" + p.PublicId
+	}
 }
 
 type PatientUseMedicine struct {
