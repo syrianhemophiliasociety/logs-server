@@ -229,7 +229,6 @@ func (a *Actions) ImportPatientsFromCsv(params ImportPatientsFromCsvParams) (Imp
 			continue
 		}
 
-		log.Errorln("new patient", newPatient)
 		newPatients = append(newPatients, newPatient)
 	}
 
