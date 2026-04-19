@@ -28,7 +28,7 @@ const (
 type Patient struct {
 	Id                  uint                    `gorm:"primaryKey;autoIncrement"`
 	PublicId            string                  `gorm:"index;not null;unique"`
-	NationalId          string                  `gorm:"index;not null;unique"`
+	NationalId          string                  `gorm:"index;unique"`
 	Nationality         string                  `gorm:"not null"`
 	FirstName           string                  `gorm:"index;not null"`
 	LastName            string                  `gorm:"index;not null"`
