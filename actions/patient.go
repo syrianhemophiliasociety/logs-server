@@ -346,6 +346,9 @@ func (a *Actions) CreatePatientBloodTestResult(params CreatePatientBloodTestResu
 	if !params.Account.HasPermission(models.AccountPermissionWritePatient) {
 		return CreatePatientBloodTestResultPayload{}, ErrPermissionDenied{}
 	}
+	if !params.Account.HasPermission(models.AccountPermissionWriteBloodTest) {
+		return CreatePatientBloodTestResultPayload{}, ErrPermissionDenied{}
+	}
 
 	patient, err := a.app.GetFullPatientByPublicId(params.PatientPublicId)
 	if err != nil {
@@ -387,6 +390,9 @@ func (a *Actions) CreatePatientDiagnosisResult(params CreatePatientDiagnosisResu
 	if !params.Account.HasPermission(models.AccountPermissionWritePatient) {
 		return CreatePatientDiagnosisResultPayload{}, ErrPermissionDenied{}
 	}
+	if !params.Account.HasPermission(models.AccountPermissionWriteDiagnoses) {
+		return CreatePatientDiagnosisResultPayload{}, ErrPermissionDenied{}
+	}
 
 	patient, err := a.app.GetFullPatientByPublicId(params.PatientPublicId)
 	if err != nil {
@@ -417,6 +423,9 @@ type UpdatePatientPendingBloodTestResultPayload struct {
 
 func (a *Actions) UpdatePatientPendingBloodTestResult(params UpdatePatientPendingBloodTestResultParams) (UpdatePatientPendingBloodTestResultPayload, error) {
 	if !params.Account.HasPermission(models.AccountPermissionWritePatient) {
+		return UpdatePatientPendingBloodTestResultPayload{}, ErrPermissionDenied{}
+	}
+	if !params.Account.HasPermission(models.AccountPermissionWriteBloodTest) {
 		return UpdatePatientPendingBloodTestResultPayload{}, ErrPermissionDenied{}
 	}
 
