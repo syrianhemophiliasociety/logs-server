@@ -17,7 +17,12 @@ const (
 		models.AccountPermissionReadBloodTest | models.AccountPermissionWriteBloodTest |
 		models.AccountPermissionReadMedicine | models.AccountPermissionWriteBloodTest |
 		models.AccountPermissionReadVirus | models.AccountPermissionWriteVirus |
-		models.AccountPermissionReadDiagnoses | models.AccountPermissionWriteDiagnoses
+		models.AccountPermissionReadDiagnoses | models.AccountPermissionWriteDiagnoses |
+		models.AccountPermissionReadJoints | models.AccountPermissionWriteJoints
+
+	// aka jointologist
+	snoopDoggPermissions = models.AccountPermissionReadPatient |
+		models.AccountPermissionReadJoints | models.AccountPermissionWriteJoints
 )
 
 type Account struct {
