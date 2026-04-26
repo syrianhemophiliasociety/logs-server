@@ -124,6 +124,36 @@ func (a *Actions) CreateAdminAccount(params CreateAdminAccountParams) (CreateAdm
 	}, err
 }
 
+type CreateJointologistAccountParams struct {
+	ActionContext
+	NewAccount createAccountParams `json:"new_account"`
+}
+
+type CreateJointologistAccountPayload struct {
+	Id uint `json:"id"`
+}
+
+func (a *Actions) CreateJointologistAccount(params CreateJointologistAccountParams) (CreateJointologistAccountPayload, error) {
+	if !params.Account.HasPermission(models.AccountPermissionWriteAccounts) {
+		return CreateJointologistAccountPayload{}, ErrPermissionDenied{}
+	}
+	if err := params.NewAccount.Validate(); err != nil {
+		return CreateJointologistAccountPayload{}, err
+	}
+
+	newAccount, err := a.app.CreateAccount(models.Account{
+		DisplayName: params.NewAccount.DisplayName,
+		Username:    params.NewAccount.Username,
+		Password:    params.NewAccount.Password,
+		Type:        models.AccountTypeJointologist,
+		Permissions: snoopDoggPermissions,
+	})
+
+	return CreateJointologistAccountPayload{
+		Id: newAccount.Id,
+	}, err
+}
+
 type GetAccountParams struct {
 	ActionContext
 	AccountId uint

@@ -70,6 +70,32 @@ func (e *accountApi) HandleCreateSecritaryAccount(w http.ResponseWriter, r *http
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
+func (e *accountApi) HandleCreateJointlogistAccount(w http.ResponseWriter, r *http.Request) {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
+
+	var reqBody actions.CreateJointologistAccountParams
+	err = json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		handleErrorResponse(w, err)
+		return
+	}
+	reqBody.ActionContext = ctx
+
+	payload, err := e.usecases.CreateJointologistAccount(reqBody)
+	if err != nil {
+		log.Errorf("[ACCOUNT API]: Failed to create jointologist account: %+v, error: %s\n", reqBody, err.Error())
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
 func (e *accountApi) HandleListAllAccounts(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {

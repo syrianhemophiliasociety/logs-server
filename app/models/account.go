@@ -9,10 +9,11 @@ import (
 type AccountType string
 
 const (
-	AccountTypeSuperAdmin AccountType = "superadmin"
-	AccountTypeAdmin      AccountType = "admin"
-	AccountTypeSecritary  AccountType = "secritary"
-	AccountTypePatient    AccountType = "patient"
+	AccountTypeSuperAdmin   AccountType = "superadmin"
+	AccountTypeAdmin        AccountType = "admin"
+	AccountTypeJointologist AccountType = "jointologist"
+	AccountTypeSecritary    AccountType = "secritary"
+	AccountTypePatient      AccountType = "patient"
 )
 
 type AccountPermissions uint64

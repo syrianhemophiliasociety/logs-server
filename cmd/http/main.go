@@ -57,6 +57,7 @@ func main() {
 	v1ApisHandler.HandleFunc("PUT /accounts/{id}", authMiddleware.AuthApi(accountApi.HandleUpdateAccount))
 	v1ApisHandler.HandleFunc("POST /accounts/admin", authMiddleware.AuthApi(accountApi.HandleCreateAdminAccount))
 	v1ApisHandler.HandleFunc("POST /accounts/secritary", authMiddleware.AuthApi(accountApi.HandleCreateSecritaryAccount))
+	v1ApisHandler.HandleFunc("POST /accounts/jointlogist", authMiddleware.AuthApi(accountApi.HandleCreateJointlogistAccount))
 	v1ApisHandler.HandleFunc("GET /accounts", authMiddleware.AuthApi(accountApi.HandleListAllAccounts))
 
 	v1ApisHandler.HandleFunc("POST /bloodtests", authMiddleware.AuthApi(bloodTestApi.HandleCreateBloodTest))
